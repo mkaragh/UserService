@@ -50,4 +50,4 @@ jobs:
 
     - name: Deploy with Helm
       run: |
-        helm upgrade --install UserService ./helmForUserservice           --set image.repository=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}           --set image.tag=latest
+        helm upgrade --install userservice ./helmForUserservice           --set image.repository=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}           --set image.tag=latest
