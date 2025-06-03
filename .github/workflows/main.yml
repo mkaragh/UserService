@@ -1,0 +1,53 @@
+name: Deploy to AWS EKS
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  AWS_REGION: us-east-2
+  EKS_CLUSTER_NAME: tripiq
+  ECR_REPO_NAME: tripiq
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Build with Maven
+      run: mvn clean package -DskipTests
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build and push Docker image
+      run: |
+        IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}:latest
+        docker build -t $IMAGE_URI .
+        docker push $IMAGE_URI
+    - name: Update kubeconfig
+      run: aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
+
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+
+    - name: Deploy with Helm
+      run: |
+        helm upgrade --install UserService ./helmForUserservice           --set image.repository=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPO_NAME }}           --set image.tag=latest
