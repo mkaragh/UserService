@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: 730335189854.dkr.ecr.us-east-2.amazonaws.com/tripiq
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
