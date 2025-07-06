@@ -92,10 +92,7 @@ volumeMounts: []
 #   mountPath: "/etc/foo"
 #   readOnly: true
 readinessProbe:
-  httpGet:
-    path: /
-    port: 8080
-  initialDelaySeconds: 70
+  initialDelaySeconds: 300
   
 nodeSelector: {}
 
