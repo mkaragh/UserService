@@ -44,11 +44,6 @@ spec:
             httpGet:
               path: /
               port: http
-          readinessProbe:
-            enabled: false
-            httpGet:
-              path: /
-              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- with .Values.volumeMounts }}
